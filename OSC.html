@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Operator Skill Checklist</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#10b981" />
+  
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -286,7 +289,16 @@
 
     XLSX.writeFile(wb, "Operator_Skill_Checklist.xlsx");
   }
-
   </script>
+
+  <script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").then(() => {
+      console.log("✅ Service Worker registered");
+    }).catch(err => {
+      console.error("❌ Service Worker registration failed:", err);
+    });
+  }
+</script>
 </body>
 </html>
