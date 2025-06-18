@@ -51,6 +51,7 @@
   <pre id="details"></pre>
 
   <script>
+    // GAS URL yang aman (harus diganti dengan URL Apps Script Anda)
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyvNJbEZ3jsP3_gRIFgYfUwahvLCX4nRqns4Fo_Z2TExr7YiG4lGONWUz-VtLUpFwgV/exec";
 
     async function forwardToGAS() {
@@ -61,25 +62,49 @@
       try {
         statusEl.textContent = "Mengirim data ke Google Sheets...";
 
+        // Validasi parameter minimal
+        if (!params.has('operator')) {
+          throw new Error("Data operator tidak ditemukan");
+        }
+
         const response = await fetch(`${GAS_URL}?${params.toString()}`);
 
-        if (!response.ok) throw new Error("HTTP Error " + response.status);
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+        }
 
         const text = await response.text();
         statusEl.className = "status success";
         statusEl.innerHTML = `✅ Data berhasil dikirim!<br>Response: ${text}`;
         detailsEl.textContent = decodeURIComponent(params.toString());
 
-        window.opener?.postMessage({ success: true, response: text }, "*");
+        // Kirim pesan ke window opener jika ada
+        if (window.opener) {
+          window.opener.postMessage({ 
+            success: true, 
+            response: text,
+            timestamp: new Date().toISOString()
+          }, "*");
+        }
+        
+        // Tutup window setelah 3 detik
         setTimeout(() => window.close(), 3000);
 
       } catch (err) {
-        console.error(err);
+        console.error("Export error:", err);
         statusEl.className = "status error";
-        statusEl.innerHTML = `❌ Gagal mengirim data.<br>${err}`;
-        detailsEl.textContent = err.stack;
+        statusEl.innerHTML = `❌ Gagal mengirim data.<br>${err.message}`;
+        detailsEl.textContent = err.stack || err.toString();
 
-        window.opener?.postMessage({ success: false, error: err.message }, "*");
+        // Kirim pesan error ke window opener jika ada
+        if (window.opener) {
+          window.opener.postMessage({ 
+            success: false, 
+            error: err.message,
+            timestamp: new Date().toISOString()
+          }, "*");
+        }
       }
     }
 
@@ -88,7 +113,8 @@
       el.style.display = el.style.display === "none" ? "block" : "none";
     }
 
-    window.onload = forwardToGAS;
+    // Jalankan proses saat window dimuat
+    window.addEventListener('load', forwardToGAS);
   </script>
 </body>
 </html>
