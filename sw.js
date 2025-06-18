@@ -1,6 +1,6 @@
 // Versi cache - ubah ini setiap update aplikasi
 const CACHE_NAME = 'sw.js?v=3';
-const DYNAMIC_CACHE_NAME = 'operator-checklist-dynamic-v3';
+const DYNAMIC_CACHE_NAME = 'sw.js?v=3';
 
 // Asset yang akan di-cache saat install
 const STATIC_ASSETS = [
