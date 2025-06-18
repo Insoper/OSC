@@ -293,7 +293,6 @@
   </script>
 
 <script>
-  // PASTE INI SEBELUM button onclick
   function exportViaProxy() {
   // Validasi data wajib
   const operatorName = document.getElementById("name").value;
@@ -303,26 +302,24 @@
   }
 
   const params = new URLSearchParams();
-  const date = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
-
-  // Data Umum
   params.append("operator", operatorName);
   params.append("company", document.getElementById("company").value || "-");
   params.append("unit", document.getElementById("unit").value || "-");
-  params.append("date", date);
+  params.append("date", document.getElementById("date").value || "-");
   params.append("notes", document.getElementById("notes").value || "-");
 
-  // Data Checklist (Format: Kriteria|Frekuensi|Penilaian)
+  // Kirim data checklist
   const rows = document.querySelectorAll("#checklistTable tbody tr");
   rows.forEach((row, i) => {
     const kriteria = row.cells[1].innerText;
     const freq = parseInt(document.getElementById(`freq-${i}`).innerText);
-    const penilaian = document.getElementById(`eval-${i}`).innerText;
-    params.append(`item_${i + 1}`, `${kriteria}|${freq}|${penilaian}`);
+    const evalText = document.getElementById(`eval-${i}`).innerText;
+    
+    params.append(`item_${i + 1}`, `${kriteria}|${freq}|${evalText}`);
   });
 
-  // Buka proxy.html
-  window.open(`proxy.html?${params.toString()}`, "_blank", "noopener,noreferrer");
+  // Buka proxy.html dengan data
+  window.open(`proxy.html?${params.toString()}`, "_blank");
 }
 </script>
 
