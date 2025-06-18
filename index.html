@@ -182,7 +182,6 @@
 
     <textarea id="notes" placeholder="Catatan / Kesimpulan"></textarea>
     <button class="export" onclick="exportToExcel()">Simpan ke Excel</button>
-    <button class="export" onclick="exportViaProxy()">Export to Spreadsheet</button>
 
   </div>
 
@@ -296,21 +295,45 @@
 <script>
   // PASTE INI SEBELUM button onclick
   function exportViaProxy() {
-    if (!document.getElementById("name").value) {
-      alert("Nama Operator wajib diisi!");
-      return;
-    }
-
-    const params = new URLSearchParams();
-    // ... kode sebelumnya ...
-
-    // Ubah cara buka jendela proxy:
-    window.open("./proxy.html?" + params.toString(), "_blank");
+  // Validasi data wajib
+  const operatorName = document.getElementById("name").value;
+  if (!operatorName) {
+    alert("Nama Operator wajib diisi!");
+    return;
   }
+
+  const params = new URLSearchParams();
+  const date = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+
+  // Data Umum
+  params.append("operator", operatorName);
+  params.append("company", document.getElementById("company").value || "-");
+  params.append("unit", document.getElementById("unit").value || "-");
+  params.append("date", date);
+  params.append("notes", document.getElementById("notes").value || "-");
+
+  // Data Checklist (Format: Kriteria|Frekuensi|Penilaian)
+  const rows = document.querySelectorAll("#checklistTable tbody tr");
+  rows.forEach((row, i) => {
+    const kriteria = row.cells[1].innerText;
+    const freq = parseInt(document.getElementById(`freq-${i}`).innerText);
+    const penilaian = document.getElementById(`eval-${i}`).innerText;
+    params.append(`item_${i + 1}`, `${kriteria}|${freq}|${penilaian}`);
+  });
+
+  // Buka proxy.html
+  window.open(`proxy.html?${params.toString()}`, "_blank", "noopener,noreferrer");
+}
 </script>
 
 <!-- Button harus SETELAH deklarasi fungsi -->
+  <button class="export" id="exportBtn">Export to Spreadsheet</button>
 
+  <script>
+  document.getElementById("exportBtn").addEventListener("click", function() {
+    exportViaProxy(); // Fungsi akan dipanggil setelah klik
+  });
+</script>
 
 
   <script>
@@ -320,16 +343,7 @@
       .catch(err => console.error("❌ Service Worker registration failed:", err));
   }
 </script>
-
   
-    <button class="export" id="exportBtn">Export</button>
-
-  <script>
-  document.getElementById("exportBtn").addEventListener("click", function() {
-    exportViaProxy(); // Fungsi akan dipanggil setelah klik
-  });
-</script>
   
-
 </body>
 </html>
