@@ -321,7 +321,14 @@
 </script>
 
   
-    <button class="export" onclick="exportViaProxy()">Export to Spreadsheet</button>
+    <button class="export" id="exportBtn">Export</button>
+
+  <script>
+  document.getElementById("exportBtn").addEventListener("click", function() {
+    exportViaProxy(); // Fungsi akan dipanggil setelah klik
+  });
+</script>
+  
 
 </body>
 </html>
