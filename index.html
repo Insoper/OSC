@@ -5,84 +5,122 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Operator Skill Checklist</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#10b981" />
-  
   <style>
+    * {
+      box-sizing: border-box;
+    }
+    
     body {
       font-family: 'Inter', sans-serif;
       background-color: #f9fafb;
-      padding: 20px;
+      padding: 0;
       margin: 0;
     }
 
     .container {
-      max-width: 900px;
-      margin: auto;
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
       background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      padding: 0;
     }
 
     h2 {
       text-align: center;
-      margin-bottom: 1rem;
+      margin: 0;
+      padding: 15px 10px;
       color: #111827;
+      font-size: 1.3rem;
+      background-color: white;
     }
 
     .input-group {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 10px;
       margin-bottom: 1rem;
+      padding: 0 10px;
+      width: 100%;
     }
 
     .input-group input {
-      flex: 1;
+      width: 100%;
       padding: 10px;
       border: 1px solid #d1d5db;
       border-radius: 6px;
-      font-size: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .input-group input[type="datetime-local"] {
+      padding: 9px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 1rem;
-    }
-
-    th {
-      background-color: #f3f4f6;
-      color: #374151;
+      font-size: 0.85rem;
+      table-layout: fixed;
     }
 
     th, td {
-      padding: 10px;
+      padding: 8px 5px;
       border: 1px solid #e5e7eb;
       text-align: center;
+      word-break: break-word;
     }
 
-    .freq-control {
+    th:nth-child(1), td:nth-child(1) { 
+      width: 40%; 
+      text-align: left;
+      padding-left: 10px;
+    }
+    th:nth-child(2), td:nth-child(2) { width: 25%; }
+    th:nth-child(3), td:nth-child(3) { width: 35%; }
+
+    .criteria-cell { 
+      text-align: left;
+      font-size: 0.75rem;
+      line-height: 1.2;
+    }
+
+    .button-group {
       display: flex;
-      align-items: center;
-      justify-content: center;
       gap: 5px;
+      justify-content: center;
     }
 
-    .freq-control button {
-      padding: 4px 8px;
-      font-size: 1rem;
-      border: none;
+    .yes-no-btn {
+      padding: 5px 8px;
+      font-size: 0.75rem;
+      border: 1px solid #d1d5db;
       border-radius: 4px;
-      background-color: #d1d5db;
       cursor: pointer;
+      transition: all 0.2s ease;
+      flex: 1;
+      max-width: 60px;
+      text-align: center;
     }
 
-    .freq-number {
-      width: 30px;
-      text-align: center;
+    .yes-btn { background-color: #d1fae5; }
+    .yes-btn.selected { background-color: #10b981; color: white; }
+
+    .no-btn { background-color: #fee2e2; }
+    .no-btn.selected { background-color: #ef4444; color: white; }
+
+    .round-indicator {
+      padding: 10px;
+      background-color: #e0f2fe;
       font-weight: bold;
+      font-size: 1rem;
+      width: 100%;
+      margin: 0 0 10px 0;
+      text-align: center;
+    }
+
+    .summary-cell { 
+      font-weight: bold;
+      padding: 0 5px;
     }
 
     textarea {
@@ -90,8 +128,9 @@
       padding: 10px;
       border: 1px solid #d1d5db;
       border-radius: 6px;
-      font-size: 1rem;
-      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      margin: 0 0 1rem 0;
+      min-height: 80px;
     }
 
     button.export {
@@ -103,244 +142,254 @@
       color: white;
       font-size: 1rem;
       cursor: pointer;
-      transition: background-color 0.2s ease;
+      margin-bottom: 15px;
     }
 
-    button.export:hover {
-      background-color: #059669;
+    button.export:hover { background-color: #059669; }
+
+    .aspect-header {
+      background-color: #e5e7eb !important;
+      font-weight: bold;
+      text-align: left !important;
+      font-size: 0.9rem;
+      padding-left: 10px !important;
     }
 
-    @media (max-width: 600px) {
-      table th, table td {
+    .guidance-img {
+      max-width: 50px;
+      max-height: 40px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .guidance-img:hover { transform: scale(1.5); }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.8);
+    }
+
+    .modal-content {
+      display: block;
+      margin: auto;
+      max-width: 95%;
+      max-height: 80%;
+      margin-top: 50px;
+    }
+
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 35px;
+      color: white;
+      font-size: 30px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    @media (min-width: 600px) {
+      .container {
+        padding: 0 15px;
+      }
+      
+      h2 {
+        padding: 20px 15px;
+        font-size: 1.5rem;
+      }
+      
+      .input-group {
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+
+      .guidance-img {
+        max-width: 60px;
+        max-height: 45px;
+      }
+
+      .criteria-cell {
+        font-size: 0.85rem;
+      }
+
+      .yes-no-btn {
+        font-size: 0.8rem;
+        padding: 6px;
+      }
+
+      th:nth-child(1), td:nth-child(1) { width: 45%; }
+      th:nth-child(2), td:nth-child(2) { width: 25%; }
+      th:nth-child(3), td:nth-child(3) { width: 30%; }
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        max-width: 960px;
+        margin: 10px auto;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      
+      h2 {
+        font-size: 1.6rem;
+        padding: 20px;
+      }
+
+      .input-group {
+        padding: 0;
+        margin-bottom: 20px;
+      }
+
+      table {
         font-size: 0.9rem;
       }
-      .input-group input {
-        flex-basis: 100%;
+
+      .yes-no-btn {
+        font-size: 0.85rem;
+        padding: 8px;
+        max-width: 70px;
       }
+
+      .guidance-img {
+        max-width: 70px;
+        max-height: 50px;
+      }
+
+      textarea {
+        font-size: 1rem;
+        margin-bottom: 20px;
+      }
+
+      button.export {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+      }
+
+      th:nth-child(1), td:nth-child(1) { width: 50%; }
+      th:nth-child(2), td:nth-child(2) { width: 20%; }
+      th:nth-child(3), td:nth-child(3) { width: 30%; }
     }
   </style>
 </head>
 <body>
-
   <div class="container">
     <h2>Operator Skill Checklist (Excavator)</h2>
-
     <div class="input-group">
-      <input type="text" id="name" placeholder="Operator Name" />
+      <input type="text" id="name" placeholder="Nama Operator" />
       <input type="text" id="company" placeholder="Perusahaan" />
-      <input type="text" id="unit" placeholder="Model / No. Unit / HM" />
+      <input type="text" id="unit" placeholder="Model/No. Unit" />
       <input type="datetime-local" id="date" />
+    </div>
+    <div class="round-indicator">
+      Asesmen Ke: <span id="currentRoundDisplay">1</span> dari 8
     </div>
 
     <table id="checklistTable">
       <thead>
-  <tr>
-    <th style="width: 5%;">No</th>
-    <th style="width: 55%;">Kriteria</th>
-    <th>Frekuensi</th>
-    <th>Penilaian</th>
-  </tr>
-</thead>
-
+        <tr>
+          <th>Rules of Thumb</th>
+          <th>Guidance</th>
+          <th id="assessmentHeader">Asesmen Ke-1</th>
+        </tr>
+      </thead>
       <tbody>
-        
-      <script>
-  const criteria = [
-    "Sudut Efektif Arm digging (Arm vertikal keluar <45 derajat Arm kedalam <30 derajat)",
-    "Sudut Efektif Bucket digging (30 - 60 derajat)",
-    "Bucket fill factor (Target minimal B = 95 - 100%)",
-    "Digging step (Urutan tahapan gali dari atas ke bawah)",
-    "Dump truck positioning <45 derajat dari over-front/over-rear (track terhadap DT harus tidak melintang)",
-    "Jarak Swing di bawah 90 derajat (Jarak Digging material to Dump truck)",
-    "Digging squence (Urutan pengambilan material ke samping tidak acak)",
-    "Gerakan kombinasi Attachment tidak sampai full stroke",
-    "Stability unit (Dudukan unit datar/kemiringan tidak lebih dari 3 derajat)",
-    "Kondisi Tinggi bench 3 - 4 Meter (40-50% digging depth)"
-  ];
+        <script>
+          const criteria = [
+            { text: "Sudut arm efektif (keluar <45°, masuk <30°)", aspect: "Operation", rounds: 8, img: "https://raw.githubusercontent.com/Insoper/my-images/main/img_1752218831264.png" },
+            { text: "Sudut bucket optimal (30–60°)", aspect: "Operation", rounds: 8, img: "https://raw.githubusercontent.com/Insoper/my-images/main/img_1752218885796.png" },
+            { text: "Isi bucket optimal (95–100%)", aspect: "Operation", rounds: 8, img: "https://raw.githubusercontent.com/Insoper/my-images/main/img_1752218929955.png" },
+            { text: "Gerakan attachment tidak full stroke", aspect: "Operation", rounds: 8, img: "https://raw.githubusercontent.com/Insoper/my-images/main/img_1752219006569.png" },
+            { text: "Gali bertahap dari atas ke bawah", aspect: "Operation", rounds: 8, img: "https://raw.githubusercontent.com/Insoper/my-images/main/img_1752218982518.png" },
+            { text: "Ambil material berurutan, tidak acak", aspect: "Operation", rounds: 8, img: "https://raw.githubusercontent.com/Insoper/my-images/main/img_1752219034491.png" },
+            { text: "Swing <90° antara gali dan buang", aspect: "Operation", rounds: 8, img: "https://raw.githubusercontent.com/Insoper/my-images/main/img_1752219104970.png" },
+            { text: "Truk posisinya sejajar (±45° dari unit)", aspect: "Operation", rounds: 8, img: "https://raw.githubusercontent.com/Insoper/my-images/main/img_1752219104970.png" },
+            { text: "Unit stabil (kemiringan <3°)", aspect: "Condition", rounds: 1, img: "https://raw.githubusercontent.com/Insoper/my-images/main/img_1752219126180.png" },
+            { text: "Tinggi bench 3–4 m (40–50% kedalaman)", aspect: "Condition", rounds: 1, img: "https://raw.githubusercontent.com/Insoper/my-images/main/img_1752219149000.png" }
+          ];
 
+          let currentRound = 1;
+          let evaluations = Array(criteria.length).fill().map(() => Array(8).fill(null));
+          let totalYesCounts = Array(criteria.length).fill(0);
 
-          criteria.forEach((text, i) => {
-  document.write(`
-    <tr>
-      <td>${i + 1}</td>
-      <td style="text-align: left;">${text}</td>
-      <td>
-        <div class="freq-control">
-          <button onclick="adjustFreq(${i}, -1)">-</button>
-          <span id="freq-${i}" class="freq-number">0</span>
-          <button onclick="adjustFreq(${i}, 1)">+</button>
-        </div>
-      </td>
-      <td id="eval-${i}">Tidak Pernah</td>
-    </tr>
-  `);
-});
+          function renderTable() {
+            let tableHTML = '';
+            let currentAspect = null;
+            const showFrequency = currentRound > 8;
+            
+            document.getElementById('assessmentHeader').textContent = 
+              showFrequency ? 'Frekuensi' : `Asesmen Ke-${currentRound}`;
+            
+            criteria.forEach((item, i) => {
+              if (item.aspect !== currentAspect) {
+                tableHTML += `<tr><td colspan="3" class="aspect-header">${item.aspect} Aspect</td></tr>`;
+                currentAspect = item.aspect;
+              }
 
+              const evaluation = evaluations[i][currentRound-1];
+              const isCondition = item.aspect === "Condition";
+              const showButtons = (!isCondition || (isCondition && currentRound === 1)) && !showFrequency;
+
+              tableHTML += `<tr>
+                <td class="criteria-cell">${item.text}</td>
+                <td>${item.img ? `<img src="${item.img}" class="guidance-img" onclick="showModal('${item.img}')">` : '-'}</td>
+                <td class="${showFrequency ? 'summary-cell' : ''}">
+                  ${showButtons ? `
+                    <div class="button-group">
+                      <button class="yes-no-btn yes-btn ${evaluation === true ? 'selected' : ''}" onclick="setEvaluation(${i}, true)">Ya</button>
+                      <button class="yes-no-btn no-btn ${evaluation === false ? 'selected' : ''}" onclick="setEvaluation(${i}, false)">Tidak</button>
+                    </div>
+                  ` : (showFrequency ? totalYesCounts[i] : '-')}
+                </td>
+              </tr>`;
+            });
+            document.querySelector('#checklistTable tbody').innerHTML = tableHTML;
+            document.getElementById('currentRoundDisplay').textContent = Math.min(currentRound, 8);
+          }
+
+          function setEvaluation(i, value) {
+            const item = criteria[i];
+            if (item.aspect === "Condition" && currentRound !== 1) return;
+            evaluations[i][currentRound - 1] = value;
+            totalYesCounts[i] = evaluations[i].filter(v => v === true).length;
+            renderTable();
+
+            const allDone = criteria.every((item, i) => {
+              if (item.aspect === "Condition" && currentRound > 1) return true;
+              return evaluations[i][currentRound - 1] !== null;
+            });
+
+            if (allDone && currentRound < 8) {
+              currentRound++;
+              renderTable();
+            } else if (allDone && currentRound === 8) {
+              currentRound++; // Move to frequency view
+              renderTable();
+            }
+          }
+
+          function showModal(imgSrc) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `<span class="close" onclick="this.parentElement.remove()">&times;</span>
+              <img class="modal-content" src="${imgSrc}">`;
+            document.body.appendChild(modal);
+            modal.style.display = 'block';
+            modal.onclick = e => { if (e.target === modal) modal.remove(); };
+          }
+
+          renderTable();
         </script>
       </tbody>
     </table>
 
     <textarea id="notes" placeholder="Catatan / Kesimpulan"></textarea>
-    <button class="export" onclick="exportToExcel()">Simpan ke Excel</button>
-
+    <button class="export" onclick="alert('Export masih diaktifkan di versi ini')">Simpan ke Excel</button>
   </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script>
-    function adjustFreq(index, change) {
-      const freqEl = document.getElementById(`freq-${index}`);
-      let current = parseInt(freqEl.innerText);
-      let newVal = current + change;
-      if (newVal < 0) newVal = 0;
-      if (newVal > 8) newVal = 8;
-      freqEl.innerText = newVal;
-      updateEvaluation(index, newVal);
-    }
-
-    function updateEvaluation(index, val) {
-      const evalEl = document.getElementById(`eval-${index}`);
-      if (val === 0) evalEl.innerText = "Tidak Pernah";
-      else if (val <= 4) evalEl.innerText = "Kadang-kadang";
-      else evalEl.innerText = "Sering";
-    }
-
-  function exportToExcel() {
-    const wb = XLSX.utils.book_new();
-
-    // === Sheet 1: Checklist ===
-    const wsChecklist = [
-      ["No", "Nama Operator", "ITEMS", "Sering (>4x)", "Kadang-kadang (1–4x)", "Tidak Pernah", "OUTPUT"]
-    ];
-
-    const rows = document.querySelectorAll("#checklistTable tbody tr");
-    const operatorName = document.getElementById("name").value || "-";
-    const tanggal = document.getElementById("date").value || "-";
-    const blok = document.getElementById("company").value || "-";
-
-    let totalPoint = 0, seringCount = 0, kadangCount = 0, tidakCount = 0;
-
-    rows.forEach((row, i) => {
-      const kriteria = row.cells[1].innerText;
-      const freq = parseInt(document.getElementById(`freq-${i}`).innerText);
-      const evalText = document.getElementById(`eval-${i}`).innerText;
-
-      let sering = "", kadang = "", tidak = "", score = 0;
-      if (evalText === "Sering") {
-        sering = 1;
-        score = 2;
-        seringCount++;
-      } else if (evalText === "Kadang-kadang") {
-        kadang = 1;
-        score = 1;
-        kadangCount++;
-      } else {
-        tidak = 1;
-        score = 0;
-        tidakCount++;
-      }
-
-      totalPoint += score;
-
-      wsChecklist.push([
-        i + 1, operatorName, kriteria, sering, kadang, tidak, score
-      ]);
-    });
-
-    const sheet1 = XLSX.utils.aoa_to_sheet(wsChecklist);
-    XLSX.utils.book_append_sheet(wb, sheet1, "Compile");
-
-    // === Sheet 2: Evaluate sesuai gambar ===
-    const wsEvaluate = [
-      ["BASELINE RESULT"],
-      [],
-      [operatorName,  tanggal, blok],
-      [],
-      ["No", "ITEMS", "Sering (>4)", "Kadang-kadang", "Tidak Pernah"],
-    ];
-
-    // Checklist data
-    rows.forEach((row, i) => {
-      const kriteria = row.cells[1].innerText;
-      const evalText = document.getElementById(`eval-${i}`).innerText;
-
-      let sering = "", kadang = "", tidak = "";
-      if (evalText === "Sering") sering = 1;
-      else if (evalText === "Kadang-kadang") kadang = 1;
-      else tidak = 1;
-
-      wsEvaluate.push([i + 1, kriteria, sering, kadang, tidak]);
-    });
-
-    wsEvaluate.push([]);
-    wsEvaluate.push(["Result", seringCount, kadangCount, tidakCount]);
-    wsEvaluate.push([operatorName, "", "", "", "", ""]);
-    wsEvaluate.push([totalPoint]);
-    wsEvaluate.push([]);
-
-    // Grade table
-    wsEvaluate.push(["Grade", "Keterangan", "Point"]);
-    wsEvaluate.push(["A", "Sangat Baik", "17 - 20"]);
-    wsEvaluate.push(["B", "Baik", "13 - 16"]);
-    wsEvaluate.push(["C", "Cukup", "9 - 12"]);
-    wsEvaluate.push(["D", "Kurang", "5 - 8"]);
-    wsEvaluate.push(["E", "Sangat Kurang", "0 - 4"]);
-
-    const sheet2 = XLSX.utils.aoa_to_sheet(wsEvaluate);
-    XLSX.utils.book_append_sheet(wb, sheet2, "Evaluate");
-
-    XLSX.writeFile(wb, "Operator_Skill_Checklist.xlsx");
-  }
-  </script>
-
-<script>
-  function exportViaProxy() {
-  // Validasi data wajib
-  const operatorName = document.getElementById("name").value;
-  if (!operatorName) {
-    alert("Nama Operator wajib diisi!");
-    return;
-  }
-
-  const params = new URLSearchParams();
-  params.append("operator", operatorName);
-  params.append("company", document.getElementById("company").value || "-");
-  params.append("unit", document.getElementById("unit").value || "-");
-  params.append("date", document.getElementById("date").value || "-");
-  params.append("notes", document.getElementById("notes").value || "-");
-
-  // Kirim data checklist
-  const rows = document.querySelectorAll("#checklistTable tbody tr");
-  rows.forEach((row, i) => {
-    const kriteria = row.cells[1].innerText;
-    const freq = parseInt(document.getElementById(`freq-${i}`).innerText);
-    const evalText = document.getElementById(`eval-${i}`).innerText;
-    
-    params.append(`item_${i + 1}`, `${kriteria}|${freq}|${evalText}`);
-  });
-
-  // Buka proxy.html dengan data
-  window.open(`proxy.html?${params.toString()}`, "_blank");
-}
-</script>
-
-<!-- Button harus SETELAH deklarasi fungsi -->
-  <button class="export" id="exportBtn">Export to Spreadsheet</button>
-
-  <script>
-  document.getElementById("exportBtn").addEventListener("click", function() {
-    exportViaProxy(); // Fungsi akan dipanggil setelah klik
-  });
-</script>
-
-
-  <script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js?v=3") // ← v3 harus sama dengan CACHE_NAME
-      .then(() => console.log("✅ Service Worker registered"))
-      .catch(err => console.error("❌ Service Worker registration failed:", err));
-  }
-</script>
-  
-  
 </body>
 </html>
