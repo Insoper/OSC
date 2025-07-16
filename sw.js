@@ -1,17 +1,19 @@
 // Versi cache - ubah ini setiap update aplikasi
 const CACHE_NAME = 'sw.js?v=3';
+const BASE_PATH = '/OSC/';  // TAMBAHKAN INI
 const DYNAMIC_CACHE_NAME = 'sw.js?v=3';
 
 // Asset yang akan di-cache saat install
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+const urlsToCache = [
+  BASE_PATH,
+  BASE_PATH + 'index.html',
+  BASE_PATH + 'manifest.json',
+  BASE_PATH + 'icon-192.png',
+  BASE_PATH + 'icon-512.png',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
 ];
+
 
 // Strategi: Cache First dengan fallback ke network
 self.addEventListener('install', (event) => {
