@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Operator Skill Checklist</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -383,13 +384,135 @@
             modal.onclick = e => { if (e.target === modal) modal.remove(); };
           }
 
+          function exportToExcel() {
+            const name = document.getElementById('name').value || '-';
+            const company = document.getElementById('company').value || '-';
+            const unit = document.getElementById('unit').value || '-';
+            const date = document.getElementById('date').value || new Date().toISOString().slice(0, 16);
+            const notes = document.getElementById('notes').value || '-';
+            
+            // Format date for display
+            const formattedDate = new Date(date).toLocaleDateString('id-ID', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric'
+            });
+            
+            // Create worksheet data
+            const wsData = [
+              ["No", "Nama Operator", "Perusahaan", "ITEMS", "Asesmen Ke-1", "Asesmen Ke-2", "Asesmen Ke-3", 
+               "Asesmen Ke-4", "Asesmen Ke-5", "Asesmen Ke-6", "Asesmen Ke-7", "Asesmen Ke-8", 
+               "Sering (>4x)", "Kadang-kadang", "Tidak Pernah", "Score", "Rekomendasi", "Tanggal"]
+            ];
+            
+            // Add criteria rows
+            criteria.forEach((item, index) => {
+              const rowNumber = index + 1;
+              const assessmentResults = evaluations[index].map(eval => eval === true ? 1 : eval === false ? 0 : '-');
+              
+              // Initialize variables
+              let sering = '', kadang = '', tidak = '';
+              let score = '';
+              let rekomendasi = '';
+              
+              if (item.aspect === "Condition") {
+                // For Condition aspect
+                score = evaluations[index][0] === true ? 2 : 0;
+                rekomendasi = evaluations[index][0] === true ? 'Maintain Condition' : 'Need Improvement';
+                // Empty the frequency columns for Condition aspect
+                sering = '';
+                kadang = '';
+                tidak = '';
+              } else {
+                // For Operation aspect
+                const yesCount = totalYesCounts[index];
+                
+                if (yesCount > 4) {
+                  sering = 1;
+                  score = 2;
+                  rekomendasi = 'Maintain Condition';
+                } else if (yesCount >= 1 && yesCount <= 4) {
+                  kadang = 1;
+                  score = 1;
+                  rekomendasi = 'Minor Improvement';
+                } else {
+                  tidak = 1;
+                  score = 0;
+                  rekomendasi = 'Major Improvement';
+                }
+              }
+              
+              // Condition items only have assessment in round 1
+              if (item.aspect === "Condition") {
+                assessmentResults.fill('-', 1);
+              }
+              
+              wsData.push([
+                rowNumber,
+                name,
+                company,
+                item.text,
+                ...assessmentResults,
+                sering,
+                kadang,
+                tidak,
+                score,
+                rekomendasi,
+                formattedDate
+              ]);
+            });
+            
+            // Add notes row
+            wsData.push([
+              '',
+              '',
+              '',
+              `Catatan / Kesimpulan: ${notes}`,
+              ...Array(13).fill(''),
+              formattedDate
+            ]);
+            
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            
+            // Set column widths
+            const colWidths = [
+              { wch: 5 },   // No
+              { wch: 20 },  // Nama Operator
+              { wch: 20 },  // Perusahaan
+              { wch: 50 },   // ITEMS
+              { wch: 10 },   // Asesmen Ke-1
+              { wch: 10 },   // Asesmen Ke-2
+              { wch: 10 },   // Asesmen Ke-3
+              { wch: 10 },   // Asesmen Ke-4
+              { wch: 10 },   // Asesmen Ke-5
+              { wch: 10 },   // Asesmen Ke-6
+              { wch: 10 },   // Asesmen Ke-7
+              { wch: 10 },   // Asesmen Ke-8
+              { wch: 10 },   // Sering (>4x)
+              { wch: 12 },   // Kadang-kadang
+              { wch: 12 },   // Tidak Pernah
+              { wch: 8 },    // Score
+              { wch: 20 },   // Rekomendasi
+              { wch: 12 }    // Tanggal
+            ];
+            ws['!cols'] = colWidths;
+            
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, "Operator Skill Checklist");
+            
+            // Export the workbook
+            XLSX.writeFile(wb, `Operator_Skill_Checklist_${name}_${formattedDate.replace(/\//g, '-')}.xlsx`);
+          }
+
           renderTable();
         </script>
       </tbody>
     </table>
 
     <textarea id="notes" placeholder="Catatan / Kesimpulan"></textarea>
-    <button class="export" onclick="alert('Export masih diaktifkan di versi ini')">Simpan ke Excel</button>
+    <button class="export" onclick="exportToExcel()">Simpan ke Excel</button>
   </div>
 </body>
 </html>
